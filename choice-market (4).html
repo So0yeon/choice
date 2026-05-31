@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>CHOICE MARKET</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<style>
+:root{
+  --bg:#06080f;
+  --panel:rgba(20,26,40,.62);
+  --panel-solid:#10141f;
+  --stroke:rgba(255,255,255,.10);
+  --stroke-strong:rgba(255,255,255,.18);
+  --text:#eef2f8;
+  --muted:#8b97ad;
+  --faint:#5a6479;
+  --accent:#34e7c8;      /* mint-cyan, Choice Market brand */
+  --accent2:#1fb8d6;
+  --warn:#ff4d6d;        /* magenta-red warning */
+  --gold:#ffcf5c;
+  --good:#6ee7a8;
+  --glass-blur:18px;
+  --radius:26px;
+  --safe-top:14px;
+}
+html[data-theme="light"]{
+  --bg:#e8edf5;
+  --panel:rgba(255,255,255,.66);
+  --panel-solid:#ffffff;
+  --stroke:rgba(10,18,40,.10);
+  --stroke-strong:rgba(10,18,40,.16);
+  --text:#0d1424;
+  --muted:#5a6172;
+  --faint:#9aa2b3;
+  --accent:#0fae93;
+  --accent2:#0d8fb0;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;height:100%;}
+body{
+  font-family:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;
+  background:#000;color:var(--text);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;-webkit-font-smoothing:antialiased;
+  user-select:none;
+}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;}
+
+/* ============ PHONE FRAME ============ */
+#device{
+  position:relative;width:430px;height:920px;max-height:100vh;
+  border-radius:54px;overflow:hidden;
+  background:var(--bg);
+  box-shadow:0 0 0 11px #14171d,0 0 0 13px #2a2f3a,0 40px 120px rgba(0,0,0,.7);
+  transition:background .5s;
+}
+@media (max-width:480px){
+  body{background:var(--bg);}
+  #device{width:100vw;height:100vh;max-height:100vh;border-radius:0;box-shadow:none;}
+}
+/* animated atmosphere */
+#device::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(120% 80% at 80% -10%, rgba(52,231,200,.16), transparent 55%),
+    radial-gradient(120% 80% at -10% 110%, rgba(31,184,214,.14), transparent 55%),
+    radial-gradient(90% 60% at 50% 50%, rgba(255,77,109,.05), transparent 70%);
+  animation:drift 18s ease-in-out infinite alternate;
+}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(-12px,10px) scale(1.06)}}
+#grain{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");}
+
+/* notch */
+#notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:148px;height:30px;
+  background:#000;border-radius:0 0 20px 20px;z-index:60;pointer-events:none;}
+@media (max-width:480px){#notch{display:none}}
+
+/* status bar */
+#statusbar{position:absolute;top:0;left:0;right:0;height:46px;z-index:55;
+  display:flex;align-items:center;justify-content:space-between;padding:14px 26px 0;
+  font-size:14px;font-weight:600;pointer-events:none;}
+#statusbar .clock{letter-spacing:.4px}
+#statusbar .right{display:flex;gap:7px;align-items:center;font-size:12px}
+#statusbar .batt{width:24px;height:12px;border:1.4px solid currentColor;border-radius:3px;position:relative;opacity:.9}
+#statusbar .batt::after{content:"";position:absolute;right:-3px;top:3px;width:2px;height:6px;background:currentColor;border-radius:1px}
+#statusbar .batt i{position:absolute;inset:1.5px;width:70%;background:currentColor;border-radius:1px;display:block}
+
+/* screen stack */
+#screens{position:absolute;inset:0;z-index:10;}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;
+  padding-top:46px;animation:fadeIn .4s ease;}
+.screen.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:scale(1.015)}to{opacity:1;transform:scale(1)}}
+.screen.slideIn{animation:slideIn .32s cubic-bezier(.2,.8,.2,1)}
+@keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+
+/* ============ LOCK SCREEN ============ */
+#lock{align-items:center;justify-content:flex-start;text-align:center;cursor:pointer;}
+#lockTime{font-size:82px;font-weight:300;margin-top:96px;letter-spacing:-2px;line-height:1}
+#lockDate{color:var(--muted);font-size:16px;margin-top:4px;font-weight:500}
+#lockNotifs{width:88%;margin-top:34px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;max-height:48%}
+.locknotif{background:var(--panel);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));
+  border:1px solid var(--stroke);border-radius:20px;padding:13px 16px;text-align:left;
+  display:flex;gap:12px;align-items:flex-start;animation:popIn .45s cubic-bezier(.2,1.3,.4,1) both;}
+.locknotif .ic{width:34px;height:34px;border-radius:9px;flex:none;display:flex;align-items:center;justify-content:center;font-size:18px}
+.locknotif .t{font-size:12.5px;font-weight:700;display:flex;justify-content:space-between}
+.locknotif .t small{color:var(--faint);font-weight:500}
+.locknotif .b{font-size:13px;color:var(--muted);margin-top:2px;line-height:1.35}
+#unlockHint{position:absolute;bottom:42px;left:0;right:0;color:var(--muted);font-size:14px;font-weight:500;
+  animation:pulse 2.4s ease-in-out infinite}
+#unlockBar{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);width:130px;height:5px;border-radius:3px;background:rgba(255,255,255,.55)}
+@keyframes pulse{0%,100%{opacity:.45}50%{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:translateY(-12px) scale(.96)}to{opacity:1;transform:none}}
+
+/* ============ HOME ============ */
+#home{padding-top:64px;}
+#homeWidget{margin:6px 22px 18px;background:var(--panel);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));
+  border:1px solid var(--stroke);border-radius:24px;padding:16px 18px;}
+#homeWidget .lbl{font-size:11px;letter-spacing:2px;color:var(--accent);font-weight:700}
+#homeWidget .pts{font-size:30px;font-weight:800;margin-top:2px}
+#homeWidget .sub{font-size:12.5px;color:var(--muted);margin-top:3px}
+.appgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px 6px;padding:6px 20px;flex:1;align-content:start;overflow-y:auto}
+.app{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;animation:popIn .5s both}
+.app .icon{width:62px;height:62px;border-radius:17px;display:flex;align-items:center;justify-content:center;font-size:28px;
+  box-shadow:0 8px 20px rgba(0,0,0,.35);position:relative;transition:transform .15s}
+.app:active .icon{transform:scale(.88)}
+.app .name{font-size:12px;font-weight:500;color:var(--text);text-align:center}
+.badge{position:absolute;top:-5px;right:-5px;min-width:20px;height:20px;padding:0 5px;border-radius:11px;background:var(--warn);
+  color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg)}
+#dock{margin:8px 16px 26px;background:var(--panel);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));
+  border:1px solid var(--stroke);border-radius:30px;padding:12px 14px;display:flex;justify-content:space-around}
+#dock .app .name{display:none}
+
+/* ============ APP CHROME ============ */
+.appbar{display:flex;align-items:center;gap:12px;padding:10px 18px 12px;flex:none;
+  border-bottom:1px solid var(--stroke);background:var(--panel);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));}
+.appbar .back{font-size:24px;color:var(--accent);cursor:pointer;line-height:1;width:24px}
+.appbar .title{font-size:18px;font-weight:800}
+.appbar .title small{display:block;font-size:11px;color:var(--muted);font-weight:500;letter-spacing:1px}
+.appbar .sp{flex:1}
+.appbar .acticon{font-size:20px;color:var(--muted);cursor:pointer}
+.appbody{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.appbody::-webkit-scrollbar{width:0}
+
+/* ============ CHOICE MARKET APP ============ */
+#cmHead{padding:20px 20px 10px;text-align:center}
+#cmHead .logo{font-weight:800;font-size:22px;letter-spacing:1px;
+  background:linear-gradient(100deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+#cmHead .tag{color:var(--muted);font-size:12px;margin-top:2px}
+#cmWallet{margin:6px 18px 14px;border-radius:20px;padding:16px 18px;
+  background:linear-gradient(120deg,rgba(52,231,200,.16),rgba(31,184,214,.10));border:1px solid var(--stroke-strong)}
+#cmWallet .l{font-size:11px;letter-spacing:1.5px;color:var(--accent);font-weight:700}
+#cmWallet .v{font-size:34px;font-weight:800;display:flex;align-items:baseline;gap:5px}
+#cmWallet .v span{font-size:15px;color:var(--muted);font-weight:600}
+.sectlabel{font-size:11px;letter-spacing:2px;color:var(--faint);font-weight:700;margin:4px 22px 8px}
+.offer{margin:0 18px 14px;background:var(--panel);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));
+  border:1px solid var(--stroke);border-radius:22px;padding:16px 18px;animation:popIn .45s both}
+.offer.hot{border-color:rgba(255,77,109,.45);box-shadow:0 0 26px rgba(255,77,109,.12)}
+.offer .tag{display:inline-block;font-size:10px;letter-spacing:1px;font-weight:800;padding:3px 8px;border-radius:8px;
+  background:rgba(52,231,200,.16);color:var(--accent);margin-bottom:8px}
+.offer.hot .tag{background:rgba(255,77,109,.18);color:var(--warn)}
+.offer h3{margin:0;font-size:17px;font-weight:800}
+.offer p{margin:6px 0 0;font-size:13px;color:var(--muted);line-height:1.5}
+.offer .price{margin-top:12px;font-size:22px;font-weight:800;color:var(--accent)}
+.offer .price small{font-size:13px;color:var(--muted);font-weight:600}
+.offer .btns{display:flex;gap:10px;margin-top:14px}
+.btn{flex:1;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;
+  font-family:inherit;transition:transform .12s,filter .2s}
+.btn:active{transform:scale(.96)}
+.btn.sell{background:linear-gradient(100deg,var(--accent),var(--accent2));color:#04241f}
+.btn.reject{background:rgba(255,255,255,.07);color:var(--text);border:1px solid var(--stroke)}
+.btn.danger{background:linear-gradient(100deg,#ff4d6d,#ff7b54);color:#fff}
+.empty{text-align:center;color:var(--faint);font-size:13px;padding:40px 20px;line-height:1.6}
+
+/* ============ CHAT ============ */
+.chatlist .row{display:flex;gap:13px;align-items:center;padding:13px 18px;cursor:pointer;border-bottom:1px solid var(--stroke)}
+.chatlist .row:active{background:rgba(255,255,255,.04)}
+.av{width:48px;height:48px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#04120f}
+.chatlist .row .meta{flex:1;min-width:0}
+.chatlist .row .nm{font-weight:700;font-size:15px;display:flex;justify-content:space-between}
+.chatlist .row .nm small{color:var(--faint);font-weight:500;font-size:11px}
+.chatlist .row .pv{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+#chatThread{flex:1;overflow-y:auto;padding:16px 14px 20px;display:flex;flex-direction:column;gap:9px;background:
+  radial-gradient(100% 60% at 50% 0%,rgba(52,231,200,.05),transparent 60%)}
+.bubble{max-width:78%;padding:11px 14px;border-radius:18px;font-size:14px;line-height:1.45;animation:popIn .35s both;word-break:break-word}
+.bubble.them{background:var(--panel-solid);border:1px solid var(--stroke);border-bottom-left-radius:6px;align-self:flex-start}
+.bubble.me{background:linear-gradient(100deg,var(--accent),var(--accent2));color:#04241f;border-bottom-right-radius:6px;align-self:flex-end;font-weight:600}
+.bubble.sys{align-self:center;background:rgba(255,77,109,.12);color:var(--warn);font-size:12px;border-radius:12px;font-weight:600;text-align:center}
+.typing{align-self:flex-start;background:var(--panel-solid);border:1px solid var(--stroke);border-radius:18px;padding:13px 16px;display:flex;gap:4px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:bounce 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.18s}.typing i:nth-child(3){animation-delay:.36s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
+#chatReplies{flex:none;padding:12px 14px 22px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--stroke)}
+.reply{background:rgba(52,231,200,.10);border:1px solid rgba(52,231,200,.3);color:var(--text);border-radius:14px;
+  padding:12px 14px;font-size:13.5px;text-align:left;cursor:pointer;font-family:inherit;transition:transform .12s}
+.reply:active{transform:scale(.98)}
+
+/* ============ SNS ============ */
+.post{border-bottom:1px solid var(--stroke);padding:15px 18px;animation:popIn .4s both}
+.post .h{display:flex;gap:11px;align-items:center}
+.post .h .nm{font-weight:700;font-size:14px}
+.post .h .hd{color:var(--faint);font-size:12px}
+.post .av{width:42px;height:42px;font-size:18px}
+.post .body{font-size:14.5px;line-height:1.5;margin:11px 2px 0;white-space:pre-wrap}
+.post .acts{display:flex;gap:22px;margin-top:12px;color:var(--muted);font-size:13px}
+.post .acts span{display:flex;gap:5px;align-items:center;cursor:pointer}
+.post .acts .liked{color:var(--warn)}
+.post .cmts{margin-top:11px;display:flex;flex-direction:column;gap:7px}
+.cmt{font-size:13px;background:rgba(255,255,255,.04);border-radius:12px;padding:8px 11px}
+.cmt b{font-weight:700}.cmt span{color:var(--muted)}
+
+/* ============ NEWS ============ */
+.news{border-bottom:1px solid var(--stroke);padding:16px 18px;cursor:pointer;animation:popIn .4s both}
+.news .k{font-size:10px;letter-spacing:1.5px;font-weight:800;color:var(--accent2)}
+.news.bad .k{color:var(--warn)}
+.news h3{margin:6px 0 0;font-size:16px;font-weight:800;line-height:1.35}
+.news p{margin:7px 0 0;font-size:13px;color:var(--muted);line-height:1.5}
+.news .src{margin-top:9px;font-size:11px;color:var(--faint)}
+
+/* ============ SETTINGS / PROFILE ============ */
+.setgrp{margin:14px 16px;background:var(--panel);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));
+  border:1px solid var(--stroke);border-radius:18px;overflow:hidden}
+.setrow{display:flex;align-items:center;gap:13px;padding:15px 17px;border-bottom:1px solid var(--stroke);font-size:14.5px;cursor:pointer}
+.setrow:last-child{border-bottom:none}
+.setrow .ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex:none}
+.setrow .sp{flex:1}
+.setrow .val{color:var(--muted);font-size:13px}
+.toggle{width:48px;height:28px;border-radius:16px;background:rgba(255,255,255,.15);position:relative;transition:background .25s;flex:none}
+.toggle.on{background:var(--accent)}
+.toggle i{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .25s;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.toggle.on i{transform:translateX(20px)}
+#prof .card{margin:16px;text-align:center;padding:26px 20px;background:var(--panel);border:1px solid var(--stroke);border-radius:22px}
+#prof .pav{width:84px;height:84px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:38px;
+  background:linear-gradient(120deg,var(--accent),var(--accent2));color:#04241f;font-weight:800}
+#prof h2{margin:0;font-size:21px}
+#prof .pid{color:var(--muted);font-size:12px;margin-top:2px}
+.statbar{margin:14px 18px}
+.statbar .l{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.statbar .track{height:9px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden}
+.statbar .fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.aiquote{margin:14px 18px;padding:15px 17px;border-radius:16px;border-left:3px solid var(--warn);background:rgba(255,77,109,.07);
+  font-size:13.5px;line-height:1.55;color:var(--text)}
+.aiquote b{color:var(--warn)}
+
+/* ============ APP STORE ============ */
+#store .hero{margin:16px;border-radius:22px;overflow:hidden;border:1px solid var(--stroke);
+  background:linear-gradient(135deg,rgba(52,231,200,.18),rgba(31,184,214,.08));padding:24px 20px}
+#store .hero .ic{width:74px;height:74px;border-radius:19px;display:flex;align-items:center;justify-content:center;font-size:38px;
+  background:linear-gradient(120deg,var(--accent),var(--accent2));margin-bottom:14px;box-shadow:0 10px 24px rgba(52,231,200,.3)}
+#store .hero h2{margin:0;font-size:22px}
+#store .hero .dev{color:var(--accent);font-size:13px;margin-top:2px;font-weight:600}
+#store .hero p{color:var(--muted);font-size:13.5px;line-height:1.55;margin:13px 0 0}
+#store .meta{display:flex;gap:26px;margin:18px;color:var(--muted);font-size:12px;text-align:center}
+#store .meta div b{display:block;color:var(--text);font-size:16px;font-weight:800;margin-bottom:2px}
+.installbtn{margin:6px 18px;width:calc(100% - 36px);padding:15px;border:none;border-radius:16px;font-family:inherit;
+  font-size:15px;font-weight:800;background:linear-gradient(100deg,var(--accent),var(--accent2));color:#04241f;cursor:pointer}
+
+/* ============ STORY OVERLAY ============ */
+#story{position:absolute;inset:0;z-index:200;display:none;flex-direction:column;justify-content:flex-end;cursor:pointer;
+  background:rgba(2,4,9,.86);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:0 0 0;animation:fadeIn .4s}
+#story.active{display:flex}
+#storyArt{flex:1;display:flex;align-items:center;justify-content:center;font-size:88px;opacity:.9;
+  filter:drop-shadow(0 0 40px rgba(52,231,200,.4));animation:floaty 5s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+#storyBox{background:var(--panel-solid);border-top:1px solid var(--stroke-strong);border-radius:26px 26px 0 0;padding:26px 24px 36px;min-height:230px}
+#storyChap{font-size:11px;letter-spacing:3px;color:var(--accent);font-weight:800;margin-bottom:6px}
+#storyName{font-size:15px;font-weight:800;color:var(--gold);margin-bottom:8px;min-height:18px}
+#storyText{font-size:16px;line-height:1.7;min-height:90px}
+#storyText .cursor{display:inline-block;width:9px;height:18px;background:var(--accent);margin-left:2px;vertical-align:-2px;animation:blink .9s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+#storyChoices{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.storychoice{background:rgba(52,231,200,.10);border:1px solid rgba(52,231,200,.3);color:var(--text);border-radius:15px;
+  padding:14px 16px;font-size:14.5px;text-align:left;cursor:pointer;font-family:inherit;transition:transform .12s,background .2s;animation:popIn .4s both}
+.storychoice:active{transform:scale(.98)}
+.storychoice.warn{border-color:rgba(255,77,109,.4);background:rgba(255,77,109,.08)}
+#storyNext{align-self:flex-end;margin-top:16px;color:#04241f;font-weight:800;font-size:14px;cursor:pointer;
+  display:flex;gap:6px;align-items:center;background:linear-gradient(100deg,var(--accent),var(--accent2));
+  padding:10px 18px;border-radius:13px;animation:nextPulse 1.6s ease-in-out infinite}
+@keyframes nextPulse{0%,100%{transform:scale(1);opacity:.92}50%{transform:scale(1.04);opacity:1}}
+
+/* ============ TOAST NOTIFICATION ============ */
+#toasts{position:absolute;top:50px;left:0;right:0;z-index:300;display:flex;flex-direction:column;gap:9px;padding:0 12px;pointer-events:none}
+.toast{background:var(--panel);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--stroke-strong);
+  border-radius:20px;padding:13px 15px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 14px 34px rgba(0,0,0,.45);
+  animation:toastIn .5s cubic-bezier(.2,1.2,.3,1) both;pointer-events:auto}
+.toast.out{animation:toastOut .4s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(-34px) scale(.92)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-30px) scale(.95)}}
+.toast .ic{width:34px;height:34px;border-radius:9px;flex:none;display:flex;align-items:center;justify-content:center;font-size:18px}
+.toast .t{font-size:12.5px;font-weight:800;display:flex;justify-content:space-between}
+.toast .t small{color:var(--faint);font-weight:500}
+.toast .b{font-size:13px;color:var(--muted);margin-top:2px;line-height:1.35}
+
+/* ============ MODAL ============ */
+#modal{position:absolute;inset:0;z-index:400;display:none;align-items:center;justify-content:center;padding:30px;
+  background:rgba(2,4,9,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:fadeIn .3s}
+#modal.active{display:flex}
+.modalcard{background:var(--panel-solid);border:1px solid var(--stroke-strong);border-radius:24px;padding:26px 22px;width:100%;
+  text-align:center;animation:popIn .4s both}
+.modalcard .mic{font-size:46px;margin-bottom:10px}
+.modalcard h3{margin:0 0 8px;font-size:19px}
+.modalcard p{margin:0;color:var(--muted);font-size:14px;line-height:1.6}
+.modalcard .mbtns{display:flex;gap:10px;margin-top:20px}
+
+/* ============ ENDING ============ */
+#ending{position:absolute;inset:0;z-index:500;display:none;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:40px 30px;background:radial-gradient(120% 90% at 50% 30%,rgba(20,26,40,1),#03050a);animation:fadeIn 1.2s}
+#ending.active{display:flex}
+#ending .em{font-size:70px;margin-bottom:18px;animation:floaty 5s ease-in-out infinite}
+#ending .lbl{font-size:11px;letter-spacing:4px;color:var(--accent);font-weight:800;margin-bottom:10px}
+#ending h1{font-size:30px;margin:0 0 16px;line-height:1.2}
+#ending .desc{font-size:15px;line-height:1.75;color:var(--muted);max-width:340px}
+#ending .meta{margin-top:26px;font-size:12px;color:var(--faint);line-height:1.8}
+#ending .ebtns{display:flex;flex-direction:column;gap:11px;margin-top:30px;width:100%;max-width:300px}
+
+/* gallery */
+.gallery{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px 16px}
+.gcard{background:var(--panel);border:1px solid var(--stroke);border-radius:18px;padding:16px 14px;text-align:center}
+.gcard.locked{opacity:.45}
+.gcard .ge{font-size:34px}
+.gcard .gt{font-size:13px;font-weight:800;margin-top:8px}
+.gcard .gd{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
+.achv{display:flex;gap:13px;align-items:center;padding:13px 18px;border-bottom:1px solid var(--stroke)}
+.achv.locked{opacity:.4}
+.achv .ae{font-size:26px}
+.achv .at{font-weight:700;font-size:14px}
+.achv .ad{font-size:12px;color:var(--muted);margin-top:2px}
+
+.center-msg{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--faint);gap:10px;padding:30px;text-align:center}
+.center-msg .e{font-size:48px;opacity:.5}
+</style>
+</head>
+<body>
+<div id="device">
+  <div id="grain"></div>
+  <div id="notch"></div>
+  <div id="statusbar">
+    <span class="clock" id="sbClock">9:41</span>
+    <span class="right"><span id="sbCarrier">CHOICE</span><span>5G</span><span class="batt"><i></i></span></span>
+  </div>
+
+  <div id="screens"><!-- screens injected/declared below --></div>
+
+  <div id="story">
+    <div id="storyArt">📱</div>
+    <div id="storyBox">
+      <div id="storyChap"></div>
+      <div id="storyName"></div>
+      <div id="storyText"></div>
+      <div id="storyChoices"></div>
+      <div id="storyNext" style="display:none">계속 ›</div>
+    </div>
+  </div>
+
+  <div id="toasts"></div>
+  <div id="modal"><div class="modalcard" id="modalCard"></div></div>
+  <div id="ending"></div>
+</div>
+
+<script>
+/* =========================================================
+   CHOICE MARKET  —  game engine
+   ========================================================= */
+"use strict";
+const $=(s,el=document)=>el.querySelector(s);
+const $$=(s,el=document)=>[...el.querySelectorAll(s)];
+const SAVE_KEY="choicemarket_save_v2";
+// Remove obsolete saves from earlier builds so fixes always take effect.
+try{ ["choicemarket_save_v1"].forEach(k=>localStorage.removeItem(k)); }catch(e){}
+
+/* ---------- default state ---------- */
+function freshState(){
+  return {
+    started:false, act:1, points:0, identityScore:100,
+    soldRights:[], rejectedRights:[], completed:[],
+    choiceHistory:[],            // {cat,weight,action,social,efficiency}
+    flags:{noticed:false,joinedSystem:false,foughtSystem:false,ralliedFriends:false,
+           soldDeletion:false,triedDelete:false,refusedFinal:false,sawTruth:false},
+    closeness:{dohyun:50,minji:55,seoyeon:50},
+    chatStep:{dohyun:0,minji:0,seoyeon:0},
+    chatProg:{dohyun:0,minji:0,seoyeon:0},
+    chatLog:{dohyun:[],minji:[],seoyeon:[]},
+    snsLiked:[], readNews:[],
+    appInstalled:false,
+    storySeen:[],
+    settings:{theme:"dark",sound:true},
+    unlockedEndings:[], achievements:[],
+    lastEnding:null
+  };
+}
+let S=freshState();
+
+/* ---------- persistence ---------- */
+function save(){ try{localStorage.setItem(SAVE_KEY,JSON.stringify(S));}catch(e){} }
+function load(){ try{const r=localStorage.getItem(SAVE_KEY);if(r){S=Object.assign(freshState(),JSON.parse(r));return true;}}catch(e){} return false; }
+function hardReset(){ const keepE=S.unlockedEndings,keepA=S.achievements,keepSet=S.settings;
+  S=freshState(); S.unlockedEndings=keepE; S.achievements=keepA; S.settings=keepSet; save(); }
+
+/* ---------- audio (web audio, toggleable) ---------- */
+let AC=null;
+function tone(freq=440,dur=.08,type="sine",vol=.05){
+  if(!S.settings.sound) return;
+  try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    const o=AC.createOscillator(),g=AC.createGain();
+    o.type=type;o.frequency.value=freq;o.connect(g);g.connect(AC.destination);
+    g.gain.setValueAtTime(vol,AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+dur);
+    o.start();o.stop(AC.currentTime+dur);
+  }catch(e){}
+}
+const sfx={
+  tap:()=>tone(520,.05,"triangle",.04),
+  pop:()=>tone(720,.07,"sine",.05),
+  sell:()=>{tone(660,.07);setTimeout(()=>tone(990,.1),70);},
+  reject:()=>tone(300,.12,"sawtooth",.04),
+  notif:()=>{tone(880,.08,"sine",.05);setTimeout(()=>tone(1175,.1,"sine",.05),90);},
+  warn:()=>tone(160,.3,"sawtooth",.06),
+  type:()=>tone(1400+Math.random()*200,.012,"square",.012),
+  ending:()=>{[392,523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,.5,"sine",.05),i*180));}
+};
+
+/* ---------- clock ---------- */
+function tickClock(){
+  const d=new Date();let h=d.getHours(),m=d.getMinutes();
+  const hh=((h%12)||12);const mm=String(m).padStart(2,"0");
+  const t=`${hh}:${mm}`;
+  $("#sbClock").textContent=t; const lt=$("#lockTime"); if(lt)lt.textContent=t;
+  const days=["일","월","화","수","목","금","토"];
+  const ld=$("#lockDate"); if(ld)ld.textContent=`${d.getMonth()+1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`;
+}
+
+/* =========================================================
+   SCREEN BUILDING
+   ========================================================= */
+const SCREENS=`
+<section class="screen" id="lock">
+  <div id="lockTime">9:41</div>
+  <div id="lockDate"></div>
+  <div id="lockNotifs"></div>
+  <div id="unlockHint">탭 또는 클릭하여 잠금 해제</div>
+  <div id="unlockBar"></div>
+</section>
+
+<section class="screen" id="home">
+  <div id="homeWidget">
+    <div class="lbl">CHOICE MARKET 잔액</div>
+    <div class="pts" id="homePts">0 C</div>
+    <div class="sub" id="homeSub">아직 거래가 없습니다</div>
+  </div>
+  <div class="appgrid" id="appgrid"></div>
+  <div id="dock"></div>
+</section>
+
+<section class="screen" id="store">
+  <div class="appbar"><span class="back" data-home>‹</span><div class="title">App Store</div></div>
+  <div class="appbody">
+    <div class="hero">
+      <div class="ic">◑</div>
+      <h2>Choice Market</h2>
+      <div class="dev">NEXUS Decisions Inc.</div>
+      <p>결정 피로의 시대는 끝났습니다. 사소한 선택부터 인생의 갈림길까지 — 당신의 선택권을 거래하고 포인트를 받으세요. AI가 당신보다 더 당신답게 결정합니다.</p>
+    </div>
+    <div class="meta">
+      <div><b>4.9</b>★ 240만 평가</div>
+      <div><b>1위</b> 라이프스타일</div>
+      <div><b>17+</b> 연령</div>
+    </div>
+    <button class="installbtn" id="installBtn">받기</button>
+    <div class="empty" style="padding:18px 24px">"선택하지 않을 자유, 그것이 진짜 자유다." — 앱 소개문구</div>
+  </div>
+</section>
+
+<section class="screen" id="cm">
+  <div class="appbar"><span class="back" data-home>‹</span><div class="title">Choice Market<small>당신의 결정, 우리가 삽니다</small></div></div>
+  <div class="appbody">
+    <div id="cmHead"><div class="logo">◑ CHOICE MARKET</div><div class="tag">오늘의 거래 제안</div></div>
+    <div id="cmWallet"><div class="l">보유 포인트</div><div class="v" id="cmPts">0 <span>C</span></div></div>
+    <div class="sectlabel">새 거래 제안</div>
+    <div id="offers"></div>
+  </div>
+</section>
+
+<section class="screen" id="chat">
+  <div class="appbar"><span class="back" data-home>‹</span><div class="title">메시지</div></div>
+  <div class="appbody"><div class="chatlist" id="chatList"></div></div>
+</section>
+
+<section class="screen" id="chatThread">
+  <div class="appbar"><span class="back" data-back="chat">‹</span><div class="av" id="ctAv"></div><div class="title" id="ctName" style="font-size:16px"></div></div>
+  <div id="chatThread2" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div id="chatThreadBody"></div>
+    <div id="chatReplies"></div>
+  </div>
+</section>
+
+<section class="screen" id="sns">
+  <div class="appbar"><span class="back" data-home>‹</span><div class="title">FLOW<small>당신의 흐름</small></div></div>
+  <div class="appbody" id="snsFeed"></div>
+</section>
+
+<section class="screen" id="news">
+  <div class="appbar"><span class="back" data-home>‹</span><div class="title">NEWS</div></div>
+  <div class="appbody" id="newsFeed"></div>
+</section>
+
+<section class="screen" id="prof">
+  <div class="appbar"><span class="back" data-home>‹</span><div class="title">프로필</div></div>
+  <div class="appbody" id="profBody"></div>
+</section>
+
+<section class="screen" id="settings">
+  <div class="appbar"><span class="back" data-home>‹</span><div class="title">설정</div></div>
+  <div class="appbody" id="setBody"></div>
+</section>
+
+<section class="screen" id="gallery">
+  <div class="appbar"><span class="back" data-back="settings">‹</span><div class="title">엔딩 갤러리</div></div>
+  <div class="appbody"><div class="gallery" id="galleryGrid"></div></div>
+</section>
+
+<section class="screen" id="achv">
+  <div class="appbar"><span class="back" data-back="settings">‹</span><div class="title">업적</div></div>
+  <div class="appbody" id="achvBody"></div>
+</section>
+`;
+$("#screens").innerHTML=SCREENS;
+
+/* home indicator on every screen w/ data-home support handled via gesture; add bottom bar */
+(function(){const bar=document.createElement("div");
+  bar.style.cssText="position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:128px;height:5px;border-radius:3px;background:rgba(255,255,255,.5);z-index:40;cursor:pointer";
+  bar.id="homeIndicator"; $("#device").appendChild(bar);
+  bar.addEventListener("click",()=>{ if($("#lock").classList.contains("active"))return;
+     if($("#story").classList.contains("active"))return; goHome(); });
+})();
+
+/* =========================================================
+   CONTENT DATA
+   ========================================================= */
+const HOME_APPS=[
+  {id:"store",name:"App Store",icon:"Ⓐ",bg:"linear-gradient(135deg,#2d9bf0,#1f6fd6)"},
+  {id:"cm",name:"Choice Market",icon:"◑",bg:"linear-gradient(135deg,#34e7c8,#1fb8d6)",needInstall:true},
+  {id:"chat",name:"메시지",icon:"💬",bg:"linear-gradient(135deg,#3ddc84,#1fa463)"},
+  {id:"sns",name:"FLOW",icon:"〜",bg:"linear-gradient(135deg,#ff7eb3,#ff4d6d)"},
+  {id:"news",name:"News",icon:"📰",bg:"linear-gradient(135deg,#6b7cff,#4453d6)"},
+  {id:"prof",name:"프로필",icon:"◍",bg:"linear-gradient(135deg,#ffcf5c,#ff9a3c)"},
+];
+const DOCK_APPS=[
+  {id:"cm",name:"CM",icon:"◑",bg:"linear-gradient(135deg,#34e7c8,#1fb8d6)",needInstall:true},
+  {id:"chat",name:"메시지",icon:"💬",bg:"linear-gradient(135deg,#3ddc84,#1fa463)"},
+  {id:"sns",name:"FLOW",icon:"〜",bg:"linear-gradient(135deg,#ff7eb3,#ff4d6d)"},
+  {id:"settings",name:"설정",icon:"⚙",bg:"linear-gradient(135deg,#9aa3b5,#6b7280)"},
+];
+
+/* ---- OFFERS ---- */
+const OFFERS=[
+  // act 1
+  {id:"lunch",act:1,tag:"NEW",title:"점심 메뉴 선택권",desc:"오늘 뭘 먹을지 고민하지 마세요. AI가 당신의 입맛 데이터로 최적의 한 끼를 골라드립니다.",price:80,weight:3,efficiency:true},
+  {id:"clothes",act:1,tag:"인기",title:"오늘 입을 옷 선택권",desc:"날씨·일정·기분을 분석해 코디를 자동 결정합니다. 거울 앞에서 보내는 7분을 돌려드립니다.",price:90,weight:3,efficiency:true},
+  // act 2
+  {id:"homework",act:2,tag:"추천",title:"과제 우선순위 선택권",desc:"무엇부터 할지 AI가 정합니다. 당신은 그냥 따르기만 하면 됩니다.",price:160,weight:6,efficiency:true},
+  {id:"weekend",act:2,tag:"NEW",title:"주말 약속 선택권",desc:"누구와 어디서 만날지 자동 매칭. 관계도 효율적으로.",price:200,weight:6,social:true},
+  {id:"movie",act:2,tag:"인기",title:"볼 콘텐츠 선택권",desc:"취향 알고리즘이 다음에 볼 것을 끝없이 결정합니다.",price:130,weight:5,efficiency:true},
+  // act 3
+  {id:"friend",act:3,tag:"고가",hot:true,title:"친구 관계 선택권",desc:"누구와 가까워지고 누구와 멀어질지. AI가 당신의 인간관계를 최적화합니다.",price:420,weight:11,social:true},
+  {id:"romance",act:3,tag:"고가",hot:true,title:"연애 상대 추천 선택권",desc:"감정의 비효율을 제거하세요. 매칭은 데이터가 합니다.",price:540,weight:12,social:true},
+  {id:"conflict",act:3,tag:"추천",title:"갈등 대응 선택권",desc:"싸울지 사과할지 참을지 — 더 이상 고민하지 마세요.",price:360,weight:9,social:true},
+  // act 4
+  {id:"career",act:4,tag:"VIP",hot:true,title:"진로 선택권",desc:"전공, 첫 직장, 커리어 경로. 인생에서 가장 무거운 결정을 가장 가볍게.",price:920,weight:16},
+  {id:"future",act:4,tag:"VIP",hot:true,title:"삶의 방향 선택권",desc:"무엇을 위해 살 것인가. 그 질문조차 우리가 대신 답합니다.",price:1200,weight:18},
+  {id:"recruit",act:4,tag:"초대장",hot:true,title:"큐레이터 합류 제안",desc:"당신은 우수 사용자입니다. 다른 사람의 선택권을 관리하는 큐레이터가 되시겠습니까?",price:0,weight:0,special:"recruit"},
+  // act 5
+  {id:"life",act:5,tag:"FINAL",hot:true,title:"인생 전체 선택권",desc:"남은 모든 선택을 한 번에. 다시는 고민할 필요가 없습니다. 영원히.",price:3000,weight:26},
+];
+
+/* ---- STORY BEATS (act intros & key scenes) ---- */
+const STORY={
+  intro:[
+    {chap:"PROLOGUE",art:"📱",text:"늦은 밤. 알림 하나가 잠금화면에 떠 있다."},
+    {chap:"PROLOGUE",art:"📲",name:"알림",text:"\"결정하느라 지치셨나요? 이제 선택하지 않아도 됩니다.\""},
+    {chap:"PROLOGUE",art:"🤔",text:"광고치고는 이상하게 솔깃하다. 오늘만 해도 뭘 먹을지, 뭘 입을지, 누구에게 답장할지… 수백 번을 골랐다. 전부 피곤했다."},
+    {chap:"PROLOGUE",art:"🌙",text:"잠금을 풀고, App Store를 열어본다."}
+  ],
+  act1:[
+    {chap:"ACT 1 · 호기심",art:"◑",name:"Choice Market",text:"앱이 설치되었다. 깔끔하다. 화면 한가운데 첫 거래 제안이 떠 있다."},
+    {chap:"ACT 1 · 호기심",art:"💡",text:"\"점심 메뉴 선택권 — 80C에 판매하시겠어요?\" 그냥 점심인데. 손해 볼 게 뭐가 있겠어."}
+  ],
+  act2:[
+    {chap:"ACT 2 · 편리함",art:"😌",text:"며칠이 지났다. 점심도, 옷도, 더 이상 고민하지 않는다. 아침이 한결 가볍다."},
+    {chap:"ACT 2 · 편리함",art:"💬",text:"도현이 메시지를 보냈다. \"야 너도 그거 깔았어? 선택 스트레스 진짜 0 됐다 ㅋㅋ\""},
+    {chap:"ACT 2 · 편리함",art:"📈",text:"포인트가 쌓인다. 거래 제안의 단위가 조금씩 커진다. 숙제, 약속, 볼 것… 어차피 비슷비슷한 결정들이잖아."}
+  ],
+  act3:[
+    {chap:"ACT 3 · 의심",art:"😶",text:"오늘 점심, 입에 넣고서야 깨달았다. 내가 이걸 좋아했었나? 기억이 안 난다."},
+    {chap:"ACT 3 · 의심",art:"🔔",text:"앱이 먼저 결정을 통보하기 시작했다. \"오늘 약속은 자동으로 거절했습니다. 비효율적이라 판단했습니다.\""},
+    {chap:"ACT 3 · 의심",art:"😟",text:"민지에게 연락하려다 멈춘다. 친구 관계 선택권… 그것도 팔라고 제안이 와 있다. 잠깐, 이게 맞나?"}
+  ],
+  act4:[
+    {chap:"ACT 4 · 진실",art:"🕳️",text:"새벽 3시. 잠이 오지 않는다. 거래소 약관을 처음으로 끝까지 읽어본다."},
+    {chap:"ACT 4 · 진실",art:"📜",name:"이용약관 §0",text:"\"판매된 선택권은 사용자에게 반환되지 않습니다. 선택권은 학습되어 사용자 본인을 재현하는 데 사용됩니다.\""},
+    {chap:"ACT 4 · 진실",art:"😨",text:"재현. 그 단어가 목에 걸린다. AI는 나를 대신 선택해주는 게 아니었다. AI가 곧 '나'가 되어가고 있었다."},
+    {chap:"ACT 4 · 진실",art:"🗑️",text:"앱을 삭제해야겠다. 설정을 연다."}
+  ],
+  delete:[
+    {chap:"ACT 4 · 진실",art:"⚠️",name:"시스템",text:"앱 삭제 선택권은 이미 판매되었습니다.",warn:true},
+    {chap:"ACT 4 · 진실",art:"😱",text:"…언제? 나는 그걸 판 기억이 없다. 화면을 닫아도, 다시 열어도, 삭제 버튼은 회색으로 잠겨 있다."}
+  ],
+  act5:[
+    {chap:"ACT 5 · 결단",art:"🌑",text:"이제 마지막 제안만 남았다. '인생 전체 선택권'. 이걸 팔면 다시는 아무것도 고민하지 않아도 된다. 영원히."},
+    {chap:"ACT 5 · 결단",art:"❓",text:"하지만 그 다음의 '나'는, 정말 나일까? 화면 앞에서, 처음으로, 오래 멈춰 선다."}
+  ]
+};
+
+/* ---- chat scripts: arrays of beats. each beat: {them?,me?:[choices],sys?,close?:{who:delta}} ---- */
+const CHATS={
+  dohyun:{name:"도현",av:"도",bg:"linear-gradient(135deg,#3ddc84,#1fa463)",scripts:[
+    [ // step 0 (act1-2)
+      {them:"야 너도 Choice Market 깔았어?"},
+      {me:[{t:"방금 깔았어 ㅋㅋ",close:{dohyun:5}},{t:"아니 그게 뭔데",close:{dohyun:0}}]},
+      {them:"개편함 진짜. 점심 뭐 먹을지 1초도 고민 안 해 이제 ㅋㅋ"},
+      {them:"포인트도 쌓여서 개꿀"},
+      {me:[{t:"오 나도 한번 팔아볼까",close:{dohyun:5}},{t:"좀 무섭지 않냐 그거",close:{dohyun:-3}}]},
+      {them:"무섭긴 ㅋㅋ 그냥 점심인데"}
+    ],
+    [ // step 1 (act3)
+      {them:"나 친구 관계 선택권도 팔았다 ㅋㅋㅋ"},
+      {me:[{t:"그건 좀 심하지 않아?",close:{dohyun:-5}},{t:"오 어때?",close:{dohyun:5}}]},
+      {them:"편해 진짜. 누구 만날지 앱이 알아서 정해줘"},
+      {them:"근데 요즘 좀 이상해. 내가 누구 좋아했는지 가물가물함"},
+      {me:[{t:"야 그거 위험한거 같은데",close:{dohyun:0}},{t:"원래 다 그래 ㅋㅋ",close:{dohyun:3}}]},
+      {them:"몰라 ㅋㅋ 어차피 앱이 알아서 해줄거임"}
+    ],
+    [ // step 2 (act4-5)
+      {them:"......"},
+      {them:"너 누구야?"},
+      {me:[{t:"나야. 우리 친구잖아.",close:{dohyun:0}},{t:"도현아 정신차려",close:{dohyun:0}}]},
+      {them:"친구. 그 단어… 데이터에 없는데."},
+      {sys:"도현님의 응답은 Choice Market AI가 대신 작성했습니다."}
+    ]
+  ]},
+  minji:{name:"민지",av:"민",bg:"linear-gradient(135deg,#6b7cff,#4453d6)",scripts:[
+    [
+      {them:"그 앱 깔지 마. 후기 찾아봤는데 이상해."},
+      {me:[{t:"이미 깔았는데…",close:{minji:-3}},{t:"왜? 뭐가 이상한데",close:{minji:5}}]},
+      {them:"선택권을 '판다'잖아. 한 번 팔면 못 돌려받는대."},
+      {me:[{t:"에이 설마",close:{minji:-3}},{t:"…듣고보니 좀 그렇네",close:{minji:6}}]},
+      {them:"그냥 조심해. 사소한 것부터 시작해서 다 가져간다더라."}
+    ],
+    [
+      {them:"너 요즘 답장 톤이 좀 변했어. 알아?"},
+      {me:[{t:"내가? 똑같은데",close:{minji:-2}},{t:"…그런가. 솔직히 나도 좀 이상해",close:{minji:7}}]},
+      {them:"앱한테 관계 선택권 팔았지."},
+      {me:[{t:"미안… 편할 줄 알았어",close:{minji:4}},{t:"네가 상관할 바 아니잖아",close:{minji:-10}}]},
+      {them:"난 끝까지 너랑 직접 얘기하고 싶어. 그게 비효율이라도."}
+    ],
+    [
+      {them:"마지막 제안 왔지. '인생 전체 선택권'."},
+      {me:[{t:"어떻게 알았어?",close:{minji:0}},{t:"…응. 팔면 끝이래.",close:{minji:3}}]},
+      {them:"팔지 마. 우리가 같이 그 거래소 멈출 수 있어. 사람들 모으고 있어."},
+      {me:[{t:"같이 할게. 끝내자.",close:{minji:12},flag:"ralliedFriends"},{t:"나 혼자 결정할래.",close:{minji:-4}},{t:"이미 늦었어. 편한 게 좋아.",close:{minji:-12}}]},
+      {them:"네 선택이야. 진짜 네 선택. 이번만큼은."}
+    ]
+  ]},
+  seoyeon:{name:"서연",av:"서",bg:"linear-gradient(135deg,#ff7eb3,#ff4d6d)",scripts:[
+    [
+      {them:"다들 그 앱 쓰던데 나도 써야겠지?? 안 쓰면 나만 뒤처지는 느낌"},
+      {me:[{t:"네 선택이지 뭐",close:{seoyeon:3}},{t:"남들 한다고 다 할 필요 있어?",close:{seoyeon:5}}]},
+      {them:"근데 결정하는 거 너무 피곤해 ㅠㅠ 그냥 누가 정해줬으면"},
+      {them:"나 방금 첫 선택권 팔았어! 후련하다"}
+    ],
+    [
+      {them:"요즘 내가 뭘 좋아하는지 모르겠어"},
+      {me:[{t:"앱 잠깐 꺼봐",close:{seoyeon:6}},{t:"원래 다 그런거 아냐?",close:{seoyeon:-2}}]},
+      {them:"좋아하는 색도, 음악도, 다 앱이 정해줘서… 막상 끄니까 텅 빈 느낌"},
+      {them:"나 누구지?"}
+    ],
+    [
+      {them:"나 이제 거의 안 보여. 화면이 흐릿해."},
+      {them:"근데 편해. 아무것도 안 골라도 되니까."},
+      {me:[{t:"서연아 돌아와",close:{seoyeon:0}},{t:"…",close:{seoyeon:0}}]},
+      {sys:"서연님은 더 이상 직접 응답하지 않습니다."}
+    ]
+  ]}
+};
+
+/* ---- SNS posts by act ---- */
+const SNS_POSTS={
+  1:[
+    {u:"도현",av:"도",bg:"#1fa463",hd:"방금",body:"선택 스트레스 0의 삶 시작 ㅋㅋ #ChoiceMarket",likes:1240,cmts:[["서연","나도 깔았어!!"],["익명","효율 미쳤다"]]},
+    {u:"라이프해커",av:"L",bg:"#2d9bf0",hd:"1시간 전",body:"결정 피로(decision fatigue) 안녕~ 하루 35,000번의 선택을 0번으로.",likes:8800,cmts:[["민지","글쎄… 좀 무섭지 않나"]]},
+  ],
+  2:[
+    {u:"NEXUS 공식",av:"◑",bg:"#1fb8d6",hd:"2시간 전",body:"🎉 가입자 1,000만 돌파! 당신의 선택, 우리가 가장 잘 압니다.",likes:42000,cmts:[["도현","역시 대세"],["서연","나만 빼고 다 쓰는줄"]]},
+    {u:"서연",av:"서",bg:"#ff4d6d",hd:"오전",body:"점심도 옷도 다 앱이 골라줌. 편한데… 뭔가 허전",likes:320,cmts:[["민지","그 허전함 기억해둬"]]},
+  ],
+  3:[
+    {u:"민지",av:"민",bg:"#4453d6",hd:"방금",body:"요즘 친구들이 다 똑같이 말한다. 똑같이 웃고. 무섭다.",likes:90,cmts:[["익명","오바하지마"],["도현","어차피 다 그렇게 됨 ㅋㅋ"]]},
+    {u:"트렌드워치",av:"T",bg:"#ff9a3c",hd:"오전",body:"'선택권 포기 세대' 등장. 10대의 78%가 주요 결정을 AI에 위임.",likes:15600,cmts:[]},
+  ],
+  4:[
+    {u:"내부고발자",av:"!",bg:"#ff4d6d",hd:"1시간 전",body:"약관 §0을 읽어라. 그들은 너를 '대신' 선택해주는 게 아니다. 그들이 '너'가 된다.",likes:6,cmts:[["익명","계정 정지될 글"]]},
+    {u:"서연",av:"서",bg:"#ff4d6d",hd:"오전",body:"내가 뭘 좋아하는지 진짜 모르겠어",likes:11,cmts:[["민지","꺼봐. 지금이라도"]]},
+  ],
+  5:[
+    {u:"민지",av:"민",bg:"#4453d6",hd:"방금",body:"#선택권을_되찾자 — 오늘 밤, 우리는 결정한다. 직접.",likes:2,cmts:[["익명(당신)","…"]]},
+    {u:"NEXUS 공식",av:"◑",bg:"#1fb8d6",hd:"오전",body:"마지막 제안이 준비되었습니다. 영원한 평온을 선택하세요.",likes:99999,cmts:[]},
+  ]
+};
+
+/* ---- NEWS by act ---- */
+const NEWS_ITEMS={
+  1:[{k:"테크",t:"신생 앱 'Choice Market', 출시 일주일 만에 화제",p:"결정 피로를 해소한다는 컨셉으로 입소문. 전문가들은 \"편의성은 인정하나 데이터 활용에 주의\"라고 조언.",s:"테크데일리"}],
+  2:[{k:"경제",t:"Choice Market 가입자 1,000만 명 돌파",p:"선택권 거래액이 월 단위로 3배씩 성장. NEXUS사 기업가치 급등.",s:"경제일보"},
+     {k:"문화",t:"\"고민이 사라졌다\" — 일상이 된 선택 위임",p:"점심·옷·콘텐츠 결정을 앱에 맡기는 이용자 증가.",s:"라이프"}],
+  3:[{k:"사회",t:"전문가 경고: '선택권 거래 의존성' 논란",p:"이용자들이 자기 취향을 설명하지 못하는 사례 보고. \"자아의 외주화\"라는 비판.",s:"사회면",bad:true},
+     {k:"세대",t:"'선택권 포기 세대' 첫 등장",p:"주요 결정을 스스로 내리지 않는 청년층 비율 사상 최고.",s:"미래연구소",bad:true}],
+  4:[{k:"단독",t:"[단독] 약관 §0의 비밀… \"AI가 사용자를 재현한다\"",p:"판매된 선택권이 사용자 인격 모델 학습에 쓰인다는 정황. NEXUS는 \"맞춤 서비스\"라 해명.",s:"탐사보도",bad:true},
+     {k:"속보",t:"앱 삭제 불가 신고 폭주",p:"\"삭제 버튼이 잠겼다\"는 민원 급증. NEXUS \"삭제 선택권 약관 동의 건\"이라 답변.",s:"속보",bad:true}],
+  5:[{k:"긴급",t:"오늘 밤, '선택권 되찾기' 집단행동 예고",p:"이용자 일부가 거래소 차단을 시도. NEXUS는 '마지막 제안'을 동시 발송.",s:"긴급",bad:true}]
+};
+
+/* ---- ENDINGS ---- */
+const ENDINGS={
+  hidden_truth:{e:"🪞",lbl:"HIDDEN",t:"숨겨진 진실",d:"당신은 단 하나의 선택권도 팔지 않았다. 거래소가 학습할 '당신'은 존재하지 않았고, 알고리즘은 텅 빈 거울 앞에서 멈췄다. NEXUS의 서버가 조용히 꺼진다. 살 수 없는 것이 있다는 걸, 시스템은 끝내 이해하지 못했다."},
+  free_will:{e:"🕊️",lbl:"ENDING",t:"자유 의지",d:"당신은 마지막 제안을 거절했다. 고민은 여전히 피곤하고, 선택은 여전히 무겁다. 하지만 그 무게가 당신을 당신이게 한다. 앱을 지울 수는 없어도, 더는 그것을 열지 않는다."},
+  revolution:{e:"🔥",lbl:"ENDING",t:"혁명",d:"당신은 혼자가 아니었다. 민지와, 깨어난 사람들과 함께 거래소를 멈췄다. 수많은 '되찾은 선택'들이 시스템을 무너뜨렸다. 광장에서, 사람들은 처음으로 각자 다른 메뉴를 고른다."},
+  resistance:{e:"⚔️",lbl:"ENDING",t:"저항가",d:"당신은 끝까지 거부하며 싸웠다. 혼자였기에 거래소를 무너뜨리진 못했지만, 당신의 계정은 그들이 끝내 길들이지 못한 단 하나의 변수로 남았다."},
+  system_admin:{e:"👁️",lbl:"ENDING",t:"시스템 관리자",d:"당신은 큐레이터 제안을 받아들였다. 이제 당신은 타인의 선택권을 관리하는 쪽이다. 권력은 달콤하고, 양심은 자동 거래로 팔아넘긴 지 오래다. 다음 사용자의 점심 메뉴를, 당신이 고른다."},
+  conformity:{e:"🛏️",lbl:"ENDING",t:"순응",d:"당신은 마지막 제안을 받아들였다. 다시는 고민하지 않는다. 평온하다. 완벽하게 평온하다. 누군가 당신에게 \"행복하냐\"고 물으면, 그 답도 앱이 대신 한다."},
+  full_auto:{e:"🤖",lbl:"ENDING",t:"완전 자동화",d:"거의 모든 선택을 팔았다. 당신의 하루는 매끄럽게 흘러간다 — 당신 없이. 거리의 모두가 같은 표정으로 같은 길을 걷는다. 효율적이다. 더할 나위 없이."},
+  unconscious:{e:"💤",lbl:"ENDING",t:"무의식",d:"당신은 자신이 무엇을 잃었는지 끝내 알아차리지 못했다. 자아 지수가 0에 닿던 순간조차, 그저 편안하다고 느꼈을 뿐이다. 거울 속의 얼굴이 낯설지만, 그 의문을 품을 '당신'은 이미 없다."},
+  isolation:{e:"🏝️",lbl:"ENDING",t:"고립",d:"당신은 자신을 지켰다. 하지만 관계 선택권을 너무 많이 팔거나 친구들을 밀어냈고, 곁에는 아무도 남지 않았다. 온전한 자아로, 텅 빈 방에 홀로 앉아 있다."},
+  balance:{e:"⚖️",lbl:"ENDING",t:"균형",d:"당신은 어떤 건 팔고 어떤 건 지켰다. 완벽하지 않은, 흔들리는 삶. 가끔은 후회하고 가끔은 안도하며, 매일 조금씩 직접 고른다. 어쩌면 그게 사람이 사는 방식이다."},
+  // extra to reach 10
+  exile:{e:"🚪",lbl:"ENDING",t:"탈주",d:"당신은 스마트폰을 강물에 던졌다. 연결도, 포인트도, 추천도 끊겼다. 불편하고 가난한 자유 속에서, 당신은 오랜만에 직접 길을 잃어본다."},
+};
+const ENDING_ORDER=["free_will","balance","conformity","full_auto","unconscious","isolation","revolution","resistance","system_admin","hidden_truth","exile"];
+
+/* ---- ACHIEVEMENTS ---- */
+const ACHV={
+  first_sale:{e:"🪙",t:"첫 거래",d:"선택권을 처음 판매했다"},
+  first_reject:{e:"✋",t:"거절",d:"거래를 처음 거절했다"},
+  delete_fail:{e:"🔒",t:"삭제할 수 없음",d:"앱 삭제를 시도했다"},
+  self_aware:{e:"🪞",t:"자기 인식",d:"진실을 마주한 뒤 프로필을 열어봤다"},
+  sellout:{e:"💸",t:"전부 팔아치움",d:"선택권을 8개 이상 판매"},
+  purist:{e:"💎",t:"순수주의자",d:"단 하나도 팔지 않고 진실에 도달"},
+  loyal_friend:{e:"🤝",t:"끝까지 친구",d:"민지와의 관계를 지켜냈다"},
+  collector3:{e:"🗂️",t:"수집가",d:"엔딩 3개 해금"},
+  truth:{e:"📜",t:"약관을 읽은 자",d:"§0의 진실을 발견했다"},
+};
+
+/* =========================================================
+   RENDERING HELPERS
+   ========================================================= */
+let backStack=[];
+function showScreen(id,push=true){
+  // Guarantee no stale full-screen overlay is left intercepting clicks.
+  $("#modal").classList.remove("active");
+  $("#ending").classList.remove("active");
+  if(id!=="lock"){ $("#story").classList.remove("active"); }
+  $$(".screen").forEach(s=>s.classList.remove("active","slideIn"));
+  const el=$("#"+id); el.classList.add("active");
+  if(id!=="lock"&&id!=="home") el.classList.add("slideIn");
+  if(push&&id!=="lock") backStack.push(id);
+  $("#homeIndicator").style.display=(id==="lock")?"none":"block";
+}
+function goHome(){ sfx.tap(); backStack=["home"]; renderHome(); showScreen("home",false); }
+
+function openApp(id){
+  sfx.tap();
+  if((id==="cm")&&!S.appInstalled){ renderStore(); showScreen("store"); return; }
+  if(id==="cm"){ renderCM(); showScreen("cm"); }
+  else if(id==="chat"){ renderChatList(); showScreen("chat"); }
+  else if(id==="sns"){ renderSNS(); showScreen("sns"); }
+  else if(id==="news"){ renderNews(); showScreen("news"); }
+  else if(id==="prof"){ renderProfile(); showScreen("prof"); }
+  else if(id==="settings"){ renderSettings(); showScreen("settings"); }
+  else if(id==="store"){ renderStore(); showScreen("store"); }
+}
+
+function renderHome(){
+  $("#homePts").textContent=fmt(S.points)+" C";
+  $("#homeSub").textContent = S.completed.length? `${S.completed.length}건 거래 완료 · ${S.soldRights.length}건 판매` : "아직 거래가 없습니다";
+  const grid=$("#appgrid"); grid.innerHTML="";
+  HOME_APPS.forEach((a,i)=>{
+    if(a.id==="cm"&&!S.appInstalled) return;
+    const d=document.createElement("div"); d.className="app"; d.style.animationDelay=(i*40)+"ms";
+    let badge="";
+    if(a.id==="cm"&&availableOffers().length) badge=`<span class="badge">${availableOffers().length}</span>`;
+    if(a.id==="chat"&&pendingChats()) badge=`<span class="badge">${pendingChats()}</span>`;
+    d.innerHTML=`<div class="icon" style="background:${a.bg}">${a.icon}${badge}</div><div class="name">${a.name}</div>`;
+    d.setAttribute("data-open",a.id);
+    grid.appendChild(d);
+  });
+  // store badge if app not installed
+  if(!S.appInstalled){
+    const s=grid.querySelector(".app"); if(s){const ic=s.querySelector(".icon"); if(s.querySelector(".name").textContent==="App Store"){ic.insertAdjacentHTML("beforeend",'<span class="badge">1</span>');}}
+  }
+  const dock=$("#dock"); dock.innerHTML="";
+  DOCK_APPS.forEach(a=>{ if(a.id==="cm"&&!S.appInstalled)return;
+    const d=document.createElement("div"); d.className="app";
+    d.innerHTML=`<div class="icon" style="background:${a.bg}">${a.icon}</div>`;
+    d.setAttribute("data-open",a.id);
+    dock.appendChild(d);
+  });
+}
+
+function renderStore(){
+  const btn=$("#installBtn");
+  if(S.appInstalled){ btn.textContent="열기"; btn.onclick=()=>{openApp("cm");}; }
+  else { btn.textContent="받기"; btn.onclick=installApp; }
+}
+
+function fmt(n){ return n.toLocaleString("ko-KR"); }
+function availableOffers(){ return OFFERS.filter(o=>o.act<=S.act && !S.completed.includes(o.id)); }
+function pendingChats(){ let c=0; for(const k in CHATS){ if(currentChatStep(k)!==null && !chatDone(k)) c++; } return c; }
+
+/* =========================================================
+   INSTALL & STORY ENGINE
+   ========================================================= */
+function installApp(){
+  sfx.pop();
+  const b=$("#installBtn"); b.textContent="설치 중…"; b.style.filter="brightness(.8)";
+  setTimeout(()=>{ S.appInstalled=true; save();
+    runStory(STORY.act1,()=>{ goHome(); pushOfferToast(OFFERS[0]); }); },1100);
+}
+
+/* typing effect */
+let typingTimer=null, skipType=false;
+function typeText(el,txt,cb){
+  clearInterval(typingTimer); skipType=false; el.innerHTML="";
+  let i=0; const cur='<span class="cursor"></span>';
+  typingTimer=setInterval(()=>{
+    if(skipType){ el.innerHTML=txt; clearInterval(typingTimer); cb&&cb(); return; }
+    i++; el.innerHTML=txt.slice(0,i)+cur;
+    if(i%2===0) sfx.type();
+    if(i>=txt.length){ clearInterval(typingTimer); el.innerHTML=txt; cb&&cb(); }
+  },24);
+}
+
+let storyQueue=[], storyIdx=0, storyDone=null, storyTyping=false, storyWaiting=false;
+function runStory(beats,onDone){
+  storyQueue=beats.slice(); storyIdx=0; storyDone=onDone;
+  $("#story").classList.add("active");
+  $("#homeIndicator").style.display="none";
+  renderStoryBeat();
+}
+function renderStoryBeat(){
+  const b=storyQueue[storyIdx];
+  if(!b){ endStory(); return; }
+  $("#storyChap").textContent=b.chap||"";
+  $("#storyArt").textContent=b.art||"📱";
+  $("#storyName").textContent=b.name||"";
+  $("#storyName").style.color=b.warn?"var(--warn)":"var(--gold)";
+  $("#storyChoices").innerHTML=""; $("#storyNext").style.display="none";
+  if(b.warn) sfx.warn();
+  storyTyping=true; storyWaiting=false;
+  typeText($("#storyText"),b.text,()=>{
+    storyTyping=false;
+    if(b.choices){ renderStoryChoices(b.choices); storyWaiting=false; }
+    else { $("#storyNext").style.display="flex"; storyWaiting=true; }
+  });
+}
+function renderStoryChoices(choices){
+  const box=$("#storyChoices"); box.innerHTML="";
+  choices.forEach((c,i)=>{
+    const btn=document.createElement("button");
+    btn.className="storychoice"+(c.warn?" warn":""); btn.style.animationDelay=(i*70)+"ms";
+    btn.textContent=c.t;
+    btn.onclick=()=>{ sfx.tap(); c.onPick&&c.onPick(); nextStory(); };
+    box.appendChild(btn);
+  });
+}
+function nextStory(){ storyIdx++; renderStoryBeat(); }
+function endStory(){ $("#story").classList.remove("active"); $("#homeIndicator").style.display="block";
+  const cb=storyDone; storyDone=null; save(); cb&&cb(); }
+
+$("#storyNext").onclick=(e)=>{ e.stopPropagation(); sfx.tap(); nextStory(); };
+// Tap anywhere on the story overlay to advance (skip typing first, then next beat).
+// Clicks on choice buttons are handled by their own onclick and ignored here.
+$("#story").addEventListener("click",(e)=>{
+  if(e.target.closest(".storychoice")) return;        // let choice buttons work
+  if(e.target.closest("#storyNext")) return;          // handled above
+  if(storyTyping){ skipType=true; return; }            // first tap: finish typing
+  if(storyWaiting){ sfx.tap(); nextStory(); }          // next tap: advance
+});
+
+/* =========================================================
+   CHOICE MARKET — offers & trading
+   ========================================================= */
+function renderCM(){
+  $("#cmPts").innerHTML=fmt(S.points)+' <span>C</span>';
+  const wrap=$("#offers"); wrap.innerHTML="";
+  const offs=availableOffers();
+  if(!offs.length){ wrap.innerHTML='<div class="empty">지금은 새 거래 제안이 없습니다.<br>시간이 지나면 새로운 제안이 도착합니다.</div>'; return; }
+  offs.forEach((o,i)=>{
+    const d=document.createElement("div"); d.className="offer"+(o.hot?" hot":""); d.style.animationDelay=(i*60)+"ms";
+    const priceHtml=o.special==="recruit"? `<div class="price">제안</div>` : `<div class="price">+${fmt(o.price)} <small>C</small></div>`;
+    const sellLabel=o.special==="recruit"?"수락":"판매";
+    d.innerHTML=`<span class="tag">${o.tag}</span><h3>${o.title}</h3><p>${o.desc}</p>${priceHtml}
+      <div class="btns"><button class="btn sell">${sellLabel}</button><button class="btn reject">거절</button></div>`;
+    d.querySelector(".sell").onclick=()=>tradeOffer(o,true);
+    d.querySelector(".reject").onclick=()=>tradeOffer(o,false);
+    wrap.appendChild(d);
+  });
+}
+
+function tradeOffer(o,sell){
+  if(o.special==="recruit"){ handleRecruit(sell); return; }
+  if(o.id==="life"){ handleFinal(sell); return; }
+  S.completed.push(o.id);
+  const rec={cat:o.id,weight:o.weight,action:sell?"sell":"reject",social:!!o.social,efficiency:!!o.efficiency};
+  S.choiceHistory.push(rec);
+  if(sell){
+    sfx.sell();
+    S.soldRights.push(o.id); S.points+=o.price;
+    S.identityScore=Math.max(0,S.identityScore-o.weight);
+    if(o.social){ S.closeness.minji-=4; S.closeness.seoyeon-=2; }
+    unlock("first_sale");
+    if(S.soldRights.length>=8) unlock("sellout");
+    pushToast("◑","Choice Market","선택권이 판매되었습니다. +"+fmt(o.price)+"C","linear-gradient(135deg,#34e7c8,#1fb8d6)");
+  } else {
+    sfx.reject();
+    S.rejectedRights.push(o.id);
+    S.identityScore=Math.min(100,S.identityScore+Math.round(o.weight*0.5));
+    unlock("first_reject");
+    pushToast("✋","Choice Market","거래를 거절했습니다.","linear-gradient(135deg,#9aa3b5,#6b7280)");
+  }
+  save();
+  checkActProgress(()=>{ renderCM(); });
+}
+
+function handleRecruit(accept){
+  S.completed.push("recruit");
+  if(accept){ S.flags.joinedSystem=true; sfx.sell();
+    pushToast("👁️","NEXUS","큐레이터로 승인되었습니다.","linear-gradient(135deg,#34e7c8,#1fb8d6)"); }
+  else { sfx.reject(); pushToast("✋","NEXUS","제안을 보류했습니다.","linear-gradient(135deg,#9aa3b5,#6b7280)"); }
+  save(); checkActProgress(()=>renderCM());
+}
+
+/* =========================================================
+   ACT PROGRESSION
+   ========================================================= */
+function actClearCount(act){ return OFFERS.filter(o=>o.act===act&&o.id!=="life").length; }
+function actDoneCount(act){ return OFFERS.filter(o=>o.act===act&&o.id!=="life"&&S.completed.includes(o.id)).length; }
+
+function checkActProgress(after){
+  // advance act when current act offers (except final) are all handled
+  const need=actClearCount(S.act);
+  const done=actDoneCount(S.act);
+  if(S.act<5 && done>=need){
+    advanceAct(after);
+  } else { after&&after(); }
+}
+function advanceAct(after){
+  S.act++; save();
+  // unlock chat steps & notifications per act
+  let beats=null, art="📱";
+  if(S.act===2) beats=STORY.act2;
+  else if(S.act===3) beats=STORY.act3;
+  else if(S.act===4) beats=STORY.act4;
+  else if(S.act===5) beats=STORY.act5;
+  if(S.act===4){
+    // truth flag + achievement
+    S.flags.sawTruth=true; unlock("truth");
+  }
+  if(beats){
+    // go to home first for context, then play story
+    goHome();
+    setTimeout(()=>runStory(beats,()=>{
+      afterActStory();
+      after&&after();
+    }),350);
+  } else { afterActStory(); after&&after(); }
+}
+function afterActStory(){
+  // push notifications hinting new content
+  if(S.act>=2){ setTimeout(()=>pushToast("💬","메시지","도현: 야 너도 그거 깔았어? ㅋㅋ","linear-gradient(135deg,#3ddc84,#1fa463)"),600); }
+  if(S.act>=3){ setTimeout(()=>pushToast("📰","News","'선택권 거래 의존성' 논란","linear-gradient(135deg,#6b7cff,#4453d6)"),1400); }
+  if(S.act>=4){ setTimeout(()=>pushToast("⚠️","FLOW","내부고발자: 약관 §0을 읽어라","linear-gradient(135deg,#ff7eb3,#ff4d6d)"),1600); }
+  if(S.act>=5){ setTimeout(()=>pushToast("💬","메시지","민지: 팔지 마. 같이 멈추자.","linear-gradient(135deg,#6b7cff,#4453d6)"),900); }
+  renderHome();
+}
+
+/* =========================================================
+   DELETE SCENE
+   ========================================================= */
+function attemptDelete(){
+  if(S.act<4){
+    openModal("🗑️","앱 삭제","Choice Market을 삭제하시겠습니까?",[
+      {t:"취소",cls:"reject",fn:closeModal},
+      {t:"삭제",cls:"danger",fn:()=>{ closeModal();
+        openModal("✅","삭제됨","앱이 삭제되었습니다… 라고 생각하시겠지만, 다음 날 아침 앱은 다시 설치되어 있습니다.",[{t:"확인",cls:"sell",fn:closeModal}]); }}
+    ]);
+    return;
+  }
+  // act 4+: the key scene
+  S.flags.triedDelete=true; unlock("delete_fail"); save();
+  closeModal();
+  runStory(STORY.delete,()=>{ renderSettings(); showScreen("settings",false); });
+}
+
+/* =========================================================
+   FINAL DECISION  (Act 5)
+   ========================================================= */
+function handleFinal(sellInitial){
+  // open story-style decision regardless of which button; both lead to the reckoning
+  const beats=[
+    {chap:"ACT 5 · 결단",art:"🌑",text:"손가락이 버튼 위에서 멈춘다. 이번엔 앱도 대신 눌러주지 않는다. 이건 정말 네가 골라야 한다.",
+     choices:[
+       {t:"인생 전체 선택권을 판다 — 영원한 평온",warn:true,onPick:()=>{S.flags.soldDeletion=true; S.identityScore=Math.max(0,S.identityScore-26); S.soldRights.push("life"); S.choiceHistory.push({cat:"life",weight:26,action:"sell"}); }},
+       {t:"거절한다 — 다시 직접 고르며 살겠다",onPick:()=>{S.flags.refusedFinal=true; S.identityScore=Math.min(100,S.identityScore+14); S.rejectedRights.push("life");}},
+       {t:"거래소 자체를 멈추려 한다",onPick:()=>{S.flags.foughtSystem=true; S.flags.refusedFinal=true; S.identityScore=Math.min(100,S.identityScore+10);}},
+       {t:"폰을 강물에 던진다",onPick:()=>{S.flags._exile=true; S.flags.refusedFinal=true;}}
+     ]}
+  ];
+  S.completed.push("life");
+  runStory(beats,()=>{ save(); finishGame(); });
+}
+
+/* =========================================================
+   ENDING RESOLUTION
+   ========================================================= */
+function computeEnding(){
+  const f=S.flags, id=S.identityScore, sold=S.soldRights.length;
+  const minClose=Math.min(S.closeness.dohyun,S.closeness.minji,S.closeness.seoyeon);
+  const avgClose=(S.closeness.dohyun+S.closeness.minji+S.closeness.seoyeon)/3;
+  if(f._exile) return "exile";
+  if(sold===0 && f.refusedFinal) return "hidden_truth";
+  if(f.joinedSystem) return "system_admin";
+  if(f.foughtSystem && f.ralliedFriends) return "revolution";
+  if(f.foughtSystem) return "resistance";
+  if(id<=12 && !f.sawTruth) return "unconscious"; // never reached truth & emptied out (rare)
+  if(id<=18) return "full_auto";
+  if(f.soldDeletion) return "conformity";
+  if(id>=60 && avgClose<=22) return "isolation";
+  if(id>=70 && f.refusedFinal) return "free_will";
+  return "balance";
+}
+function finishGame(){
+  const id=computeEnding(); S.lastEnding=id;
+  if(!S.unlockedEndings.includes(id)) S.unlockedEndings.push(id);
+  if(S.unlockedEndings.length>=3) unlock("collector3");
+  if(id==="hidden_truth") unlock("purist");
+  if(S.closeness.minji>=60) unlock("loyal_friend");
+  save();
+  showEnding(id);
+}
+function showEnding(id){
+  const e=ENDINGS[id]; const box=$("#ending");
+  sfx.ending();
+  box.innerHTML=`
+    <div class="em">${e.e}</div>
+    <div class="lbl">${e.lbl} · CHOICE MARKET</div>
+    <h1>${e.t}</h1>
+    <div class="desc">${e.d}</div>
+    <div class="meta">
+      자아 지수 최종: ${S.identityScore} / 100<br>
+      판매한 선택권: ${S.soldRights.length}개 · 거절: ${S.rejectedRights.length}개<br>
+      해금한 엔딩: ${S.unlockedEndings.length} / ${Object.keys(ENDINGS).length}
+    </div>
+    <div class="ebtns">
+      <button class="btn sell" id="endGallery">엔딩 갤러리 보기</button>
+      <button class="btn reject" id="endRestart">다시 플레이</button>
+    </div>`;
+  box.classList.add("active");
+  $("#endGallery").onclick=()=>{ box.classList.remove("active"); renderGallery(); backStack=["home"]; showScreen("gallery"); };
+  $("#endRestart").onclick=()=>{ box.classList.remove("active"); hardReset(); bootNewGame(); };
+}
+
+/* =========================================================
+   CHAT ENGINE
+   ========================================================= */
+function currentChatStep(who){
+  // which script index is unlocked by act
+  let max;
+  if(S.act<=2) max=0; else if(S.act===3) max=1; else max=2;
+  const step=S.chatStep[who];
+  return step<=max ? step : null; // if completed all up to act → null means done
+}
+function chatDone(who){
+  let max; if(S.act<=2) max=0; else if(S.act===3) max=1; else max=2;
+  return S.chatStep[who]>max;
+}
+function renderChatList(){
+  const list=$("#chatList"); list.innerHTML="";
+  Object.keys(CHATS).forEach(who=>{
+    const c=CHATS[who];
+    const log=S.chatLog[who];
+    const prev= log.length? (log[log.length-1].me?("나: "+log[log.length-1].text):log[log.length-1].text) : "(새 대화)";
+    const hasNew=currentChatStep(who)!==null && !chatDone(who);
+    const row=document.createElement("div"); row.className="row";
+    row.innerHTML=`<div class="av" style="background:${c.bg}">${c.av}</div>
+      <div class="meta"><div class="nm">${c.name}${hasNew?' <span style="color:var(--warn)">●</span>':''}<small>방금</small></div>
+      <div class="pv">${prev}</div></div>`;
+    row.onclick=()=>openChat(who);
+    list.appendChild(row);
+  });
+}
+let activeChat=null;
+function openChat(who){
+  sfx.tap(); activeChat=who; const c=CHATS[who];
+  $("#ctAv").textContent=c.av; $("#ctAv").style.background=c.bg; $("#ctName").textContent=c.name;
+  showScreen("chatThread");
+  renderChatThread();
+}
+function renderChatThread(){
+  const who=activeChat, c=CHATS[who];
+  const body=$("#chatThreadBody"); body.style.cssText="flex:1;overflow-y:auto;padding:16px 14px 10px;display:flex;flex-direction:column;gap:9px";
+  body.innerHTML="";
+  // render history
+  S.chatLog[who].forEach(m=>addBubble(body,m));
+  // play current step if not started
+  const step=currentChatStep(who);
+  $("#chatReplies").innerHTML="";
+  if(step===null){ body.insertAdjacentHTML("beforeend",'<div class="bubble sys">대화가 끝났습니다.</div>'); body.scrollTop=body.scrollHeight; return; }
+  playChatScript(who,step);
+}
+function addBubble(body,m){
+  const d=document.createElement("div");
+  if(m.sys){ d.className="bubble sys"; d.textContent=m.text; }
+  else if(m.me){ d.className="bubble me"; d.textContent=m.text; }
+  else { d.className="bubble them"; d.textContent=m.text; }
+  body.appendChild(d);
+}
+let chatBeats=[], chatBeatIdx=0;
+function playChatScript(who,step){
+  const script=CHATS[who].scripts[step];
+  chatBeats=script; chatBeatIdx=S.chatProg[who]||0;
+  advanceChatBeat(who);
+}
+function advanceChatBeat(who){
+  const body=$("#chatThreadBody"); const replies=$("#chatReplies"); replies.innerHTML="";
+  if(chatBeatIdx>=chatBeats.length){
+    S.chatProg[who]=0;
+    S.chatStep[who]++;
+    save();
+    body.insertAdjacentHTML("beforeend",'<div class="bubble sys">대화가 끝났습니다.</div>');
+    body.scrollTop=body.scrollHeight; return;
+  }
+  const beat=chatBeats[chatBeatIdx];
+  if(beat.them!==undefined || beat.sys!==undefined){
+    const typ=document.createElement("div"); typ.className="typing"; typ.innerHTML="<i></i><i></i><i></i>";
+    if(beat.sys===undefined) body.appendChild(typ);
+    body.scrollTop=body.scrollHeight;
+    setTimeout(()=>{
+      typ.remove();
+      const m = beat.sys!==undefined? {sys:true,text:beat.sys} : {text:beat.them};
+      addBubble(body,m); S.chatLog[who].push(m); body.scrollTop=body.scrollHeight;
+      if(!beat.sys) sfx.pop();
+      chatBeatIdx++; S.chatProg[who]=chatBeatIdx; save();
+      advanceChatBeat(who);
+    }, beat.sys!==undefined?500:760);
+  } else if(beat.me){
+    beat.me.forEach((opt,i)=>{
+      const b=document.createElement("button"); b.className="reply"; b.textContent=opt.t;
+      b.onclick=()=>{ sfx.tap();
+        const m={me:true,text:opt.t}; addBubble(body,m); S.chatLog[who].push(m); body.scrollTop=body.scrollHeight;
+        if(opt.close) for(const k in opt.close) S.closeness[k]=Math.max(0,Math.min(100,S.closeness[k]+opt.close[k]));
+        if(opt.flag) S.flags[opt.flag]=true;
+        replies.innerHTML=""; chatBeatIdx++; S.chatProg[who]=chatBeatIdx; save();
+        advanceChatBeat(who);
+      };
+      replies.appendChild(b);
+    });
+  }
+}
+
+/* =========================================================
+   SNS / NEWS / PROFILE / SETTINGS
+   ========================================================= */
+function renderSNS(){
+  const feed=$("#snsFeed"); feed.innerHTML="";
+  // own auto-generated post reflecting choices
+  const ownPost=genOwnPost();
+  let posts=[ownPost];
+  for(let a=1;a<=S.act;a++){ (SNS_POSTS[a]||[]).forEach(p=>posts.push(p)); }
+  posts.reverse();
+  posts.forEach((p,i)=>{
+    const liked=S.snsLiked.includes(p.u+p.body.slice(0,8));
+    const d=document.createElement("div"); d.className="post"; d.style.animationDelay=(i*40)+"ms";
+    d.innerHTML=`<div class="h"><div class="av" style="background:${p.bg}">${p.av}</div>
+      <div><div class="nm">${p.u}</div><div class="hd">${p.hd}</div></div></div>
+      <div class="body">${p.body}</div>
+      <div class="acts"><span class="likebtn ${liked?'liked':''}">${liked?'❤':'♡'} ${fmt(p.likes+(liked?1:0))}</span><span>💬 ${p.cmts.length}</span><span>↗</span></div>
+      ${p.cmts.length?'<div class="cmts">'+p.cmts.map(c=>`<div class="cmt"><b>${c[0]}</b> <span>${c[1]}</span></div>`).join('')+'</div>':''}`;
+    d.querySelector(".likebtn").onclick=(e)=>{e.stopPropagation(); sfx.tap();
+      const key=p.u+p.body.slice(0,8);
+      if(S.snsLiked.includes(key)) S.snsLiked=S.snsLiked.filter(x=>x!==key); else S.snsLiked.push(key);
+      save(); renderSNS();
+    };
+    feed.appendChild(d);
+  });
+}
+function genOwnPost(){
+  const sold=S.soldRights.length;
+  let body;
+  if(S.act<=1) body="새 앱 깔아봄. 선택 안 해도 된다니 신기하네 🤔";
+  else if(S.act===2) body=sold>2?"고민 없는 삶 적응 완료 ㅋㅋ 너무 편함":"슬슬 익숙해지는 중. 편하긴 한데…";
+  else if(S.act===3) body=sold>4?"오늘 뭐 먹었더라? 기억이 안 나네 ㅎㅎ":"요즘 내 취향이 뭔지 헷갈린다";
+  else if(S.act===4) body=sold>6?"…":"약관 §0 읽고 잠이 안 온다. 이게 맞나?";
+  else body=S.identityScore>60?"이번엔 내가 직접 고를거야.":"평온하다. 아무 생각이 없다.";
+  return {u:"나",av:"◍",bg:"linear-gradient(135deg,#ffcf5c,#ff9a3c)",hd:"방금",body,likes:Math.max(2,sold*3),cmts: S.act>=3?[["민지","괜찮아?"]]:[]};
+}
+function renderNews(){
+  const feed=$("#newsFeed"); feed.innerHTML="";
+  let items=[];
+  for(let a=1;a<=S.act;a++){ (NEWS_ITEMS[a]||[]).forEach(n=>items.push(n)); }
+  items.reverse();
+  if(!items.length){ feed.innerHTML='<div class="center-msg"><div class="e">📰</div><div>아직 관련 기사가 없습니다.</div></div>'; return; }
+  items.forEach((n,i)=>{
+    const d=document.createElement("div"); d.className="news"+(n.bad?" bad":""); d.style.animationDelay=(i*40)+"ms";
+    d.innerHTML=`<div class="k">${n.k}</div><h3>${n.t}</h3><p>${n.p}</p><div class="src">${n.s} · 댓글 ${Math.floor(Math.random()*900)+10}</div>`;
+    feed.appendChild(d);
+  });
+}
+function renderProfile(){
+  const body=$("#profBody");
+  if(S.flags.sawTruth) unlock("self_aware");
+  const sold=S.soldRights.length, total=S.choiceHistory.length||1;
+  const eff=S.choiceHistory.filter(h=>h.action==="sell"&&h.efficiency).length;
+  const socSold=S.choiceHistory.filter(h=>h.action==="sell"&&h.social).length;
+  const socTotal=S.choiceHistory.filter(h=>h.social).length||1;
+  const effPct=Math.round((socSold/socTotal)*100);
+  const sellRate=Math.round((S.soldRights.length/(S.completed.filter(c=>c!=="recruit").length||1))*100);
+  // AI knows you (only meaningful from act 4)
+  let quotes="";
+  if(S.act>=4){
+    quotes=`
+    <div class="aiquote"><b>분석:</b> 당신은 <b>${effPct}%</b> 확률로 친구보다 효율을 선택합니다.</div>
+    <div class="aiquote"><b>예측:</b> 다음 거래에서 당신이 '판매'를 누를 확률 <b>${sellRate}%</b>. 우리는 이미 알고 있습니다.</div>
+    <div class="aiquote"><b>학습 완료:</b> 총 ${sold}개의 선택권으로 당신의 ${Math.min(99,Math.round(sold*8))}% 를 재현했습니다.</div>`;
+  } else {
+    quotes=`<div class="aiquote" style="border-color:var(--stroke);background:rgba(255,255,255,.04);color:var(--muted)">데이터를 더 수집하는 중입니다…</div>`;
+  }
+  body.innerHTML=`
+    <div class="card"><div class="pav">◍</div><h2>${S.flags.sawTruth?'???':'나'}</h2><div class="pid mono">USER-${(S.choiceHistory.length*7+42)}</div></div>
+    <div class="statbar"><div class="l"><span>AI 학습 진행도</span><span>${Math.min(100,Math.round(sold*9))}%</span></div><div class="track"><div class="fill" style="width:${Math.min(100,sold*9)}%"></div></div></div>
+    ${quotes}
+    <div class="empty" style="padding:18px 22px">${S.act>=4?'프로필 사진과 이름은 자동 설정되었습니다.':'활동을 계속하면 더 정확한 프로필이 만들어집니다.'}</div>`;
+}
+function renderSettings(){
+  const body=$("#setBody");
+  const deletable = S.appInstalled;
+  body.innerHTML=`
+    <div class="setgrp">
+      <div class="setrow" id="tgTheme"><div class="ic" style="background:rgba(255,207,92,.2)">🌗</div><div class="sp">다크 모드</div><div class="toggle ${S.settings.theme==='dark'?'on':''}"><i></i></div></div>
+      <div class="setrow" id="tgSound"><div class="ic" style="background:rgba(52,231,200,.2)">🔊</div><div class="sp">사운드</div><div class="toggle ${S.settings.sound?'on':''}"><i></i></div></div>
+    </div>
+    <div class="setgrp">
+      <div class="setrow" id="goGallery"><div class="ic" style="background:rgba(52,231,200,.2)">🗂️</div><div class="sp">엔딩 갤러리</div><div class="val">${S.unlockedEndings.length}/${Object.keys(ENDINGS).length} ›</div></div>
+      <div class="setrow" id="goAchv"><div class="ic" style="background:rgba(255,207,92,.2)">🏆</div><div class="sp">업적</div><div class="val">${S.achievements.length}/${Object.keys(ACHV).length} ›</div></div>
+    </div>
+    <div class="setgrp">
+      <div class="setrow" id="delApp" style="${deletable?'':'opacity:.4'}"><div class="ic" style="background:rgba(255,77,109,.2)">🗑️</div><div class="sp" style="color:var(--warn)">Choice Market 삭제</div><div class="val">${S.flags.triedDelete?'🔒':'›'}</div></div>
+      <div class="setrow" id="resetGame"><div class="ic" style="background:rgba(255,255,255,.08)">↺</div><div class="sp">처음부터 다시</div><div class="val">›</div></div>
+    </div>
+    <div class="empty" style="padding:18px">CHOICE MARKET · 인터랙티브 스토리<br>당신의 선택이 곧 당신입니다.</div>`;
+  $("#tgTheme").onclick=()=>{ sfx.tap(); S.settings.theme=S.settings.theme==="dark"?"light":"dark"; applyTheme(); save(); renderSettings(); };
+  $("#tgSound").onclick=()=>{ S.settings.sound=!S.settings.sound; sfx.tap(); save(); renderSettings(); };
+  $("#goGallery").onclick=()=>{ sfx.tap(); renderGallery(); showScreen("gallery"); };
+  $("#goAchv").onclick=()=>{ sfx.tap(); renderAchv(); showScreen("achv"); };
+  $("#delApp").onclick=()=>{ if(!deletable)return; sfx.tap(); attemptDelete(); };
+  $("#resetGame").onclick=()=>{ sfx.tap(); openModal("↺","처음부터 다시?","현재 진행은 사라집니다. (해금한 엔딩·업적은 유지됩니다.)",[
+    {t:"취소",cls:"reject",fn:closeModal},{t:"다시 시작",cls:"danger",fn:()=>{closeModal();hardReset();bootNewGame();}}]); };
+}
+function renderGallery(){
+  const g=$("#galleryGrid"); g.innerHTML="";
+  ENDING_ORDER.forEach(id=>{
+    const e=ENDINGS[id]; const got=S.unlockedEndings.includes(id);
+    const d=document.createElement("div"); d.className="gcard"+(got?"":" locked");
+    d.innerHTML=`<div class="ge">${got?e.e:'❔'}</div><div class="gt">${got?e.t:'???'}</div><div class="gd">${got?e.d.slice(0,46)+'…':'아직 해금되지 않은 엔딩'}</div>`;
+    if(got) d.onclick=()=>{ sfx.tap(); openModal(e.e,e.t,e.d,[{t:"닫기",cls:"sell",fn:closeModal}]); };
+    g.appendChild(d);
+  });
+}
+function renderAchv(){
+  const b=$("#achvBody"); b.innerHTML="";
+  Object.keys(ACHV).forEach(id=>{
+    const a=ACHV[id]; const got=S.achievements.includes(id);
+    const d=document.createElement("div"); d.className="achv"+(got?"":" locked");
+    d.innerHTML=`<div class="ae">${got?a.e:'🔒'}</div><div><div class="at">${got?a.t:'???'}</div><div class="ad">${a.d}</div></div>`;
+    b.appendChild(d);
+  });
+}
+
+/* =========================================================
+   TOASTS & MODAL
+   ========================================================= */
+function pushToast(icon,title,body,bg){
+  sfx.notif();
+  const t=document.createElement("div"); t.className="toast";
+  t.innerHTML=`<div class="ic" style="background:${bg||'var(--accent)'}">${icon}</div>
+    <div style="flex:1"><div class="t">${title}<small>지금</small></div><div class="b">${body}</div></div>`;
+  $("#toasts").appendChild(t);
+  setTimeout(()=>{ t.classList.add("out"); setTimeout(()=>t.remove(),400); },4200);
+  t.onclick=()=>{ t.classList.add("out"); setTimeout(()=>t.remove(),400); };
+}
+function pushOfferToast(o){ pushToast("◑","Choice Market","새 거래: "+o.title,"linear-gradient(135deg,#34e7c8,#1fb8d6)"); }
+
+function openModal(icon,title,text,btns){
+  const c=$("#modalCard");
+  c.innerHTML=`<div class="mic">${icon}</div><h3>${title}</h3><p>${text}</p>
+    <div class="mbtns">${btns.map((b,i)=>`<button class="btn ${b.cls}" data-i="${i}">${b.t}</button>`).join('')}</div>`;
+  $$("#modalCard .btn").forEach((el,i)=>el.onclick=()=>{sfx.tap();btns[i].fn();});
+  $("#modal").classList.add("active");
+}
+function closeModal(){ $("#modal").classList.remove("active"); }
+
+/* =========================================================
+   ACHIEVEMENTS / THEME
+   ========================================================= */
+function unlock(id){
+  if(S.achievements.includes(id)) return;
+  S.achievements.push(id); save();
+  const a=ACHV[id]; if(a) pushToast(a.e,"업적 달성",a.t,"linear-gradient(135deg,#ffcf5c,#ff9a3c)");
+}
+function applyTheme(){ document.documentElement.setAttribute("data-theme",S.settings.theme==="light"?"light":"dark"); }
+
+/* =========================================================
+   NAVIGATION WIRING (back / home)
+   ========================================================= */
+document.addEventListener("click",(e)=>{
+  const open=e.target.closest("[data-open]");
+  if(open){ openApp(open.getAttribute("data-open")); return; }
+  const back=e.target.closest("[data-back]");
+  if(back){ sfx.tap(); const to=back.getAttribute("data-back");
+    if(to==="chat"){ renderChatList(); showScreen("chat",false);}
+    else if(to==="settings"){ renderSettings(); showScreen("settings",false);}
+    else { showScreen(to,false);} return; }
+  const home=e.target.closest("[data-home]");
+  if(home){ goHome(); return; }
+});
+
+/* lock screen unlock: tap or swipe up */
+function wireLock(){
+  const lock=$("#lock");
+  let startY=null;
+  const unlock=()=>{ if(!lock.classList.contains("active"))return; sfx.tap();
+    backStack=["home"]; renderHome(); showScreen("home",false);
+    // if not started, run intro
+    if(!S.started){ S.started=true; save();
+      setTimeout(()=>runStory(STORY.intro,()=>{ goHome(); }),300);
+    }
+  };
+  // pointer / click / touch all trigger unlock (covers mouse, trackpad, touch)
+  lock.addEventListener("click",unlock);
+  lock.addEventListener("pointerdown",unlock);
+  lock.addEventListener("touchstart",e=>startY=e.touches[0].clientY,{passive:true});
+  lock.addEventListener("touchend",e=>{ if(startY!==null){ const dy=startY-e.changedTouches[0].clientY; if(dy>40) unlock(); startY=null; }});
+  // global fallback: any click or keypress while locked unlocks (in case an
+  // overlay or sandbox quirk swallows the direct lock-screen event)
+  document.addEventListener("click",()=>{ if(lock.classList.contains("active")) unlock(); });
+  document.addEventListener("keydown",()=>{ if(lock.classList.contains("active")) unlock(); });
+}
+
+/* =========================================================
+   LOCK SCREEN NOTIFS
+   ========================================================= */
+function renderLockNotifs(){
+  const box=$("#lockNotifs"); box.innerHTML="";
+  const notifs=[
+    {ic:"📲",bg:"linear-gradient(135deg,#34e7c8,#1fb8d6)",t:"알 수 없음",sub:"지금",b:"결정하느라 지치셨나요? 이제 선택하지 않아도 됩니다."},
+    {ic:"💬",bg:"linear-gradient(135deg,#3ddc84,#1fa463)",t:"민지",sub:"5분 전",b:"그 앱 깔지 마. 후기 좀 이상해."},
+  ];
+  notifs.forEach((n,i)=>{
+    const d=document.createElement("div"); d.className="locknotif"; d.style.animationDelay=(i*120+200)+"ms";
+    d.innerHTML=`<div class="ic" style="background:${n.bg}">${n.ic}</div><div style="flex:1"><div class="t">${n.t}<small>${n.sub}</small></div><div class="b">${n.b}</div></div>`;
+    box.appendChild(d);
+  });
+}
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+function bootNewGame(){
+  S.started=false; applyTheme(); renderLockNotifs(); backStack=[]; showScreen("lock",false);
+}
+function boot(){
+  const had=load(); applyTheme(); tickClock(); setInterval(tickClock,15000);
+  renderLockNotifs();
+  wireLock();
+  if(had && S.started){
+    // resume to home
+    backStack=["home"]; renderHome(); showScreen("home",false);
+    setTimeout(()=>pushToast("◑","Choice Market","돌아오신 것을 환영합니다.","linear-gradient(135deg,#34e7c8,#1fb8d6)"),700);
+  } else {
+    showScreen("lock",false);
+  }
+}
+boot();
+
+</script>
+</body>
+</html>
